@@ -75,11 +75,11 @@ export default function LandingPage() {
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
                   <EnhancedLoginModal
                     buttonText="Start Shopping"
-                    className="inline-flex h-10 items-center justify-center rounded-md bg-teal-600 px-8 text-sm font-medium text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 disabled:pointer-events-none disabled:opacity-50"
+                    className="inline-flex h-10 items-center justify-center rounded-md bg-white text-teal-700 border border-teal-700 px-8 text-sm font-medium shadow transition-colors hover:bg-teal-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 disabled:pointer-events-none disabled:opacity-50"
                   />
                   <EnhancedLoginModal
                     buttonText="Join as a Merchant"
-                    className="bg-background text-foreground hover:bg-accent hover:text-accent-foreground"
+                    className="inline-flex h-10 items-center justify-center rounded-md bg-transparent text-white border border-white px-8 text-sm font-medium hover:bg-white hover:text-teal-700 shadow transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white disabled:pointer-events-none disabled:opacity-50"
                   />
                 </div>
               </div>
