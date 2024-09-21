@@ -34,6 +34,10 @@ ifeq ($(findstring --network sepolia,$(ARGS)),--network sepolia)
 	NETWORK_ARGS := --rpc-url $(SEPOLIA_RPC_URL) --private-key $(PRIVATE_KEY_DEPLOYER) --broadcast --verify --etherscan-api-key $(ETHERSCAN_API_KEY) -vvvvv
 endif
 
+ifeq ($(findstring --network hedera-testnet,$(ARGS)), --network hedera-testnet)
+	NETWORK_ARGS := --rpc-url https://testnet.hashio.io/api --private-key $(PRIVATE_KEY_DEPLOYER) --broadcast --verify --verifier sourcify --verifier-url https://server-verify.hashscan.io -vvvv
+endif
+
 # Scripts
 deploy-mock-usdt:
 	@forge script script/DeployMockUsdt.s.sol:DeployMockUsdt $(NETWORK_ARGS)

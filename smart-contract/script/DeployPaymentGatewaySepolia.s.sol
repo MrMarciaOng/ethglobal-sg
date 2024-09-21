@@ -6,7 +6,9 @@ import {console} from "forge-std/console.sol";
 import {PaymentGateway} from "../src/PaymentGateway.sol";
 
 contract DeployPaymentGateway is Script {
-    address private constant DEFAULT_USDC_ADDRESS = 0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238; // Sepolia USDC
+    // address private constant DEFAULT_USDC_ADDRESS = 0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238; // Sepolia USDC
+    address private constant DEFAULT_USDC_ADDRESS = 0xF8d56ca172a99CD17B9aaE9de3b84C2a851A3202; // Hedera
+
     address private constant DEFAULT_MERCHANT = 0xB2ED87074E123d1EF6bf1cB2949076baf5498484; // account index 1
     function run() external returns (address) {
         return deployPaymentGateway(DEFAULT_USDC_ADDRESS, DEFAULT_MERCHANT);
