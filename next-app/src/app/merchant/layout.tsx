@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Bell,
   ChevronDown,
@@ -8,12 +9,7 @@ import {
   ShoppingBag,
   Settings,
   Menu,
-  X,
   Search,
-  DollarSign,
-  Package,
-  TrendingUp,
-  ShoppingCart,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -23,14 +19,19 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const router = useRouter();
 
   const menuItems = [
-    { title: "Transactions", icon: Layout },
-    { title: "Disputes", icon: ShoppingBag },
-    { title: "Settings", icon: Settings },
+    { title: "Dashboard", icon: ShoppingBag, url: "/merchant/" },
+    { title: "Transactions", icon: Layout, url: "/merchant/transactions" },
+    { title: "Settings", icon: Settings, url: "/merchant/settings" },
   ];
 
   const Sidebar = ({ className = "", collapsed = false }) => (
@@ -39,16 +40,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     >
       <div className="space-y-4 py-4">
         <div className="px-3 py-2">
-          <h2
-            className={cn(
-              "mb-2 px-4 text-lg font-semibold tracking-tight",
-              collapsed ? "sr-only" : "block"
-            )}
-          >
-            Dashboard
-          </h2>
           <div className="space-y-1">
-            {menuItems.map(({ title, icon: Icon }) => (
+            {menuItems.map(({ title, icon: Icon, url }) => (
               <Button
                 key={title}
                 variant="ghost"
@@ -56,6 +49,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   "w-full justify-start",
                   collapsed ? "h-12 w-12 p-0" : "px-4"
                 )}
+                onClick={() => router.push(url)}
               >
                 <Icon className={cn("h-4 w-4", collapsed && "mx-auto")} />
                 {!collapsed && <span className="ml-2">{title}</span>}
