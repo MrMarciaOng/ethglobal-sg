@@ -98,8 +98,8 @@ export function DisputeChatComponent({
       <CardHeader className="bg-primary text-primary-foreground p-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
           <h2 className="text-3xl font-bold">
-            Dispute Chat ({userPerspective === "user" ? "Customer" : "Merchant"}
-            )
+          {userPerspective === "user" ? "Customer" : "Merchant"} Dispute Chat
+            
           </h2>
           <div className="text-lg">
             <div className="font-semibold">
