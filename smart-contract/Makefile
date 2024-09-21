@@ -39,7 +39,7 @@ deploy-mock-usdt:
 	@forge script script/DeployMockUsdt.s.sol:DeployMockUsdt $(NETWORK_ARGS)
 
 deploy-payment-gateway:
-	@forge script script/DeployPaymentGateway.s.sol:DeployPaymentGateway $(NETWORK_ARGS)
+	@forge script script/DeployPaymentGatewaySepolia.s.sol:DeployPaymentGateway $(NETWORK_ARGS)
 
 deploy-payment-gateway-anvil:
 	@forge script script/DeployPaymentGatewayAnvil.s.sol:DeployPaymentGateway $(NETWORK_ARGS)
