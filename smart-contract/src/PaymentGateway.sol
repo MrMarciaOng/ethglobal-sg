@@ -4,6 +4,8 @@ pragma solidity 0.8.18;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 
+//! Change the smart contract such that as long as 3 moderators vote buyer wins, dispute will be resolved
+
 /**
  * @title   PaymentGateway
  * @dev     Contract for managing USDC payments for a single merchant with dispute resolution
@@ -25,13 +27,14 @@ contract PaymentGateway is AccessControl {
         bool isDisputed;
         bool isResolved;
         uint8 approvalCount;
-        mapping(address => bool) hasApproved;
+        uint8 buyerWinVotes;
+        mapping(address => bool) hasVoted;
     }
 
     mapping(uint256 => Transaction) public s_transactions;
 
     uint256 public s_transactionCount;
-    uint256 public constant DISPUTE_FEE = 1 * 10e6; // 1 USDC
+    uint256 public constant DISPUTE_FEE = 1 * 1e6; // 1 USDC
     uint256 public constant DISPUTE_PERIOD = 24 hours;
     uint256 public constant MERCHANT_FEE_PERCENTAGE = 100; // 1% in basis points
     uint8 public constant REQUIRED_APPROVALS = 3;
@@ -47,6 +50,7 @@ contract PaymentGateway is AccessControl {
     event TransactionDisputed(uint256 indexed transactionId);
     event DisputeApproved(uint256 indexed transactionId, address moderator);
     event DisputeResolved(uint256 indexed transactionId, bool buyerWon);
+    event DisputeVoteCast(uint256 indexed transactionId, address moderator, bool votedForBuyer);
     event PaymentReleased(uint256 indexed transactionId, uint256 amount, uint256 fee);
     event FeesWithdrawn(address indexed admin, uint256 amount);
 
@@ -110,26 +114,47 @@ contract PaymentGateway is AccessControl {
         Transaction storage transaction = s_transactions[transactionId];
         require(transaction.isDisputed, "Transaction not disputed");
         require(!transaction.isResolved, "Dispute already resolved");
-        require(!transaction.hasApproved[msg.sender], "Already approved");
+        require(!transaction.hasVoted[msg.sender], "Already approved");
 
-        transaction.hasApproved[msg.sender] = true;
+        transaction.hasVoted[msg.sender] = true;
         transaction.approvalCount++;
 
         emit DisputeApproved(transactionId, msg.sender);
     }
 
     /**
-     * @notice  Resolve a disputed transaction
+     * @notice  Approve a disputed transaction and vote on the outcome
      * @param   transactionId  The ID of the disputed transaction
-     * @param   buyerWon  Whether the buyer won the dispute
+     * @param   buyerShouldWin  Whether the moderator thinks the buyer should win
      */
-    function resolveDispute(uint256 transactionId, bool buyerWon) external onlyRole(MODERATOR_ROLE) {
+    function voteOnDispute(uint256 transactionId, bool buyerShouldWin) external onlyRole(MODERATOR_ROLE) {
         Transaction storage transaction = s_transactions[transactionId];
         require(transaction.isDisputed, "Transaction not disputed");
         require(!transaction.isResolved, "Dispute already resolved");
-        require(transaction.approvalCount >= REQUIRED_APPROVALS, "Not enough approvals");
+        require(!transaction.hasVoted[msg.sender], "Already voted");
+
+        transaction.hasVoted[msg.sender] = true;
+        transaction.approvalCount++;
+
+        emit DisputeVoteCast(transactionId, msg.sender, buyerShouldWin);
+
+        if (transaction.approvalCount >= REQUIRED_APPROVALS) {
+            resolveDispute(transactionId);
+        }
+    }
+
+    /**
+     * @notice  Resolve a disputed transaction
+     * @param   transactionId  The ID of the disputed transaction
+     */
+    function resolveDispute(uint256 transactionId) internal {
+        Transaction storage transaction = s_transactions[transactionId];
+        require(transaction.isDisputed, "Transaction not disputed");
+        require(!transaction.isResolved, "Dispute already resolved");
+        require(transaction.approvalCount >= REQUIRED_APPROVALS, "Not enough votes");
 
         transaction.isResolved = true;
+        bool buyerWon = true; // Buyer always wins if 3 moderators have voted
 
         if (buyerWon) {
             require(s_usdcToken.transfer(transaction.buyer, transaction.amount), "Refund to buyer failed");

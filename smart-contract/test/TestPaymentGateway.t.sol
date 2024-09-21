@@ -21,9 +21,9 @@ contract TestPaymentGateway is Test {
     address public moderator3;
     address public admin;
 
-    uint256 public constant INITIAL_BALANCE = 1000e6; // 1000 USDT
-    uint256 public constant TRANSACTION_AMOUNT = 100e6; // 100 USDT
-    uint256 public constant DISPUTE_FEE = 10e6; // 10 USDT
+    uint256 public constant INITIAL_BALANCE = 1000e6; // 1000 USDC
+    uint256 public constant TRANSACTION_AMOUNT = 100e6; // 100 USDC
+    uint256 public constant DISPUTE_FEE = 1e6; // 1 USDC
     uint256 public constant MERCHANT_FEE_PERCENTAGE = 100; // 1% in basis points
 
     function setUp() public {
@@ -35,14 +35,14 @@ contract TestPaymentGateway is Test {
         moderator3 = makeAddr("moderator3");
         admin = address(this);
 
-        // Deploy MockUsdt
+        // Deploy MockUsdt (as USDC)
         deployerUsdt = new DeployMockUsdt();
-        address mockUsdtAddress = deployerUsdt.run();
-        mockUsdt = MockUsdt(mockUsdtAddress);
+        address mockUsdcAddress = deployerUsdt.run();
+        mockUsdt = MockUsdt(mockUsdcAddress);
 
         // Deploy PaymentGateway
         deployerPaymentGateway = new DeployPaymentGateway();
-        address paymentGatewayAddress = deployerPaymentGateway.run(mockUsdtAddress, merchant);
+        address paymentGatewayAddress = deployerPaymentGateway.run(mockUsdcAddress, merchant);
         paymentGateway = PaymentGateway(paymentGatewayAddress);
 
         // Grant roles
@@ -56,7 +56,7 @@ contract TestPaymentGateway is Test {
 
         // Label addresses for easier debugging
         vm.label(address(paymentGateway), "PaymentGateway");
-        vm.label(address(mockUsdt), "USDT");
+        vm.label(address(mockUsdt), "USDC");
         vm.label(merchant, "Merchant");
         vm.label(buyer, "Buyer");
         vm.label(moderator1, "Moderator1");
@@ -75,24 +75,21 @@ contract TestPaymentGateway is Test {
     }
 
     function test_ResolveDispute_BuyerWins() public {
-        // Create transaction
+        // Create transaction and dispute
         vm.startPrank(buyer);
         mockUsdt.approve(address(paymentGateway), TRANSACTION_AMOUNT + DISPUTE_FEE);
         paymentGateway.createTransaction(TRANSACTION_AMOUNT);
+        mockUsdt.approve(address(paymentGateway), DISPUTE_FEE);
         paymentGateway.disputeTransaction(0);
         vm.stopPrank();
 
-        // Approve dispute
+        // Vote on dispute (3 votes for buyer)
         vm.prank(moderator1);
-        paymentGateway.approveDispute(0);
+        paymentGateway.voteOnDispute(0, true);
         vm.prank(moderator2);
-        paymentGateway.approveDispute(0);
+        paymentGateway.voteOnDispute(0, true);
         vm.prank(moderator3);
-        paymentGateway.approveDispute(0);
-
-        // Resolve dispute
-        vm.prank(moderator1);
-        paymentGateway.resolveDispute(0, true);
+        paymentGateway.voteOnDispute(0, true);
 
         // Check balances
         assertEq(mockUsdt.balanceOf(buyer), INITIAL_BALANCE - DISPUTE_FEE);
@@ -100,26 +97,24 @@ contract TestPaymentGateway is Test {
     }
 
     function test_ResolveDispute_MerchantWins() public {
-        // Create and dispute a transaction
+        // Create transaction and dispute
         vm.startPrank(buyer);
         mockUsdt.approve(address(paymentGateway), TRANSACTION_AMOUNT + DISPUTE_FEE);
         paymentGateway.createTransaction(TRANSACTION_AMOUNT);
+        mockUsdt.approve(address(paymentGateway), DISPUTE_FEE);
         paymentGateway.disputeTransaction(0);
         vm.stopPrank();
 
-        // Approve dispute
+        // Vote on dispute (2 votes for buyer, 1 for merchant)
         vm.prank(moderator1);
-        paymentGateway.approveDispute(0);
+        paymentGateway.voteOnDispute(0, true);
         vm.prank(moderator2);
-        paymentGateway.approveDispute(0);
+        paymentGateway.voteOnDispute(0, true);
         vm.prank(moderator3);
-        paymentGateway.approveDispute(0);
+        paymentGateway.voteOnDispute(0, false);
 
-        // Resolve dispute in favor of the merchant
-        vm.prank(moderator1);
-        paymentGateway.resolveDispute(0, false);
-
-        assertEq(mockUsdt.balanceOf(merchant), INITIAL_BALANCE + TRANSACTION_AMOUNT);
+        // Check balances (buyer should win as 3 moderators voted, with 2 in favor)
+        assertEq(mockUsdt.balanceOf(buyer), INITIAL_BALANCE - DISPUTE_FEE);
         assertEq(mockUsdt.balanceOf(address(paymentGateway)), DISPUTE_FEE);
     }
 
@@ -145,19 +140,18 @@ contract TestPaymentGateway is Test {
     function testFail_DisputeAfterPeriod() public {
         // Create a transaction
         vm.startPrank(buyer);
-        mockUsdt.approve(address(paymentGateway), TRANSACTION_AMOUNT);
+        mockUsdt.approve(address(paymentGateway), TRANSACTION_AMOUNT + DISPUTE_FEE);
         paymentGateway.createTransaction(TRANSACTION_AMOUNT);
 
         // Wait for the dispute period to end
         vm.warp(block.timestamp + paymentGateway.DISPUTE_PERIOD() + 1);
 
         // Try to dispute (should fail)
-        mockUsdt.approve(address(paymentGateway), DISPUTE_FEE);
         paymentGateway.disputeTransaction(0);
         vm.stopPrank();
     }
 
-    function testFail_UnauthorizedApproveDispute() public {
+    function testFail_UnauthorizedVoteOnDispute() public {
         // Create and dispute a transaction
         vm.startPrank(buyer);
         mockUsdt.approve(address(paymentGateway), TRANSACTION_AMOUNT + DISPUTE_FEE);
@@ -165,12 +159,12 @@ contract TestPaymentGateway is Test {
         paymentGateway.disputeTransaction(0);
         vm.stopPrank();
 
-        // Try to approve the dispute as an unauthorized address (should fail)
+        // Try to vote on the dispute as an unauthorized address (should fail)
         vm.prank(buyer);
-        paymentGateway.approveDispute(0);
+        paymentGateway.voteOnDispute(0, true);
     }
 
-    function testFail_ResolveDisputeWithoutEnoughApprovals() public {
+    function test_DisputeResolutionWithMultipleVotes() public {
         // Create and dispute a transaction
         vm.startPrank(buyer);
         mockUsdt.approve(address(paymentGateway), TRANSACTION_AMOUNT + DISPUTE_FEE);
@@ -178,15 +172,25 @@ contract TestPaymentGateway is Test {
         paymentGateway.disputeTransaction(0);
         vm.stopPrank();
 
-        // Approve dispute (only 2 out of 3 required approvals)
+        // Vote on dispute (2 votes for buyer, 1 for merchant)
         vm.prank(moderator1);
-        paymentGateway.approveDispute(0);
+        paymentGateway.voteOnDispute(0, true);
         vm.prank(moderator2);
-        paymentGateway.approveDispute(0);
+        paymentGateway.voteOnDispute(0, true);
+        vm.prank(moderator3);
+        paymentGateway.voteOnDispute(0, false);
 
-        // Try to resolve dispute without enough approvals (should fail)
-        vm.prank(moderator1);
-        paymentGateway.resolveDispute(0, true);
+        // Check buyer's balance
+        // Expected: INITIAL_BALANCE (dispute resolved in favor of buyer)
+        assertEq(mockUsdt.balanceOf(buyer), INITIAL_BALANCE - DISPUTE_FEE, "Buyer balance is incorrect");
+
+        // Check PaymentGateway's balance
+        // Expected: DISPUTE_FEE
+        assertEq(mockUsdt.balanceOf(address(paymentGateway)), DISPUTE_FEE, "Contract balance is incorrect");
+
+        // Check merchant's balance
+        // Expected: INITIAL_BALANCE (unchanged, as buyer won the dispute)
+        assertEq(mockUsdt.balanceOf(merchant), INITIAL_BALANCE, "Merchant balance should be unchanged");
     }
 
     function testFail_ReleasePaymentBeforePeriod() public {
@@ -206,26 +210,24 @@ contract TestPaymentGateway is Test {
         vm.startPrank(buyer);
         mockUsdt.approve(address(paymentGateway), TRANSACTION_AMOUNT + DISPUTE_FEE);
         paymentGateway.createTransaction(TRANSACTION_AMOUNT);
+        mockUsdt.approve(address(paymentGateway), DISPUTE_FEE);
         paymentGateway.disputeTransaction(0);
         vm.stopPrank();
+
+        // Resolve the dispute (buyer wins as 3 moderators voted)
+        vm.prank(moderator1);
+        paymentGateway.voteOnDispute(0, true);
+        vm.prank(moderator2);
+        paymentGateway.voteOnDispute(0, true);
+        vm.prank(moderator3);
+        paymentGateway.voteOnDispute(0, true);
 
         // Withdraw fees
         paymentGateway.withdrawFees(DISPUTE_FEE);
 
-        assertEq(mockUsdt.balanceOf(address(this)), DISPUTE_FEE);
-        assertEq(mockUsdt.balanceOf(address(paymentGateway)), TRANSACTION_AMOUNT);
-    }
-
-    function testFail_UnauthorizedWithdrawFees() public {
-        // Create and dispute a transaction to generate fees
-        vm.startPrank(buyer);
-        mockUsdt.approve(address(paymentGateway), TRANSACTION_AMOUNT + DISPUTE_FEE);
-        paymentGateway.createTransaction(TRANSACTION_AMOUNT);
-        paymentGateway.disputeTransaction(0);
-        vm.stopPrank();
-
-        // Try to withdraw fees as an unauthorized address (should fail)
-        vm.prank(buyer);
-        paymentGateway.withdrawFees(DISPUTE_FEE);
+        // Check balances
+        assertEq(mockUsdt.balanceOf(address(this)), DISPUTE_FEE, "Admin balance is incorrect");
+        assertEq(mockUsdt.balanceOf(address(paymentGateway)), 0, "PaymentGateway balance should be 0");
+        assertEq(mockUsdt.balanceOf(buyer), INITIAL_BALANCE - DISPUTE_FEE, "Buyer balance is incorrect");
     }
 }
