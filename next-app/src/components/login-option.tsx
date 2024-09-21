@@ -10,24 +10,29 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { User, Store } from "lucide-react";
+import { User, Store, Loader2 } from "lucide-react";
 import { useRouter } from 'next/navigation';
 
 export default function EnhancedLoginModal() {
   const [isOpen, setIsOpen] = useState(false);
+  const [loggingIn, setLoggingIn] = useState(false);
+  const [loginType, setLoginType] = useState<"demo" | "merchant" | null>(null);
   const router = useRouter();
 
   const handleLogin = (type: "demo" | "merchant") => {
-    // Implement login logic here
-    console.log(`Logging in as ${type}`);
-    setIsOpen(false);
+    setLoggingIn(true);
+    setLoginType(type);
     
-    // Redirect based on login type
-    if (type === "demo") {
-      router.push('/user');
-    } else {
-      router.push('/merchant');
-    }
+    // Simulate login process
+    setTimeout(() => {
+      setIsOpen(false);
+      setLoggingIn(false);
+      if (type === "demo") {
+        router.push('/user');
+      } else {
+        router.push('/merchant');
+      }
+    }, 2000);
   };
 
   return (
@@ -35,31 +40,42 @@ export default function EnhancedLoginModal() {
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          className="inline-flex text-lg items-center justify-center rounded-md bg-gradient-to-r from-[#00b894] to-[#55efc4] px-4 py-2 text-sm font-medium text-white hover:text-white shadow transition-all duration-200 ease-in-out hover:from-[#00a785] hover:to-[#4de6b5] hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+          className="inline-flex text-lg items-center justify-center rounded-md bg-gradient-to-r from-[#00b894] to-[#55efc4] px-6 py-3 text-base font-medium text-white hover:text-white shadow transition-all duration-200 ease-in-out hover:from-[#00a785] hover:to-[#4de6b5] hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
         >
           Launch App
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] max-w-full bg-white rounded-lg shadow-lg">
+      <DialogContent className="sm:max-w-[800px] max-w-full bg-white rounded-lg shadow-lg">
         <DialogHeader>
-          <DialogTitle className="text-3xl font-bold text-center mb-6 text-gray-800">
-            Choose Login Type
+          <DialogTitle className="text-4xl font-bold text-center mb-8 text-gray-800">
+            {loggingIn ? "Logging In" : "Choose Login Type"}
           </DialogTitle>
         </DialogHeader>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 p-4">
-          <LoginOption
-            icon={<User size={40} />}
-            title="Demo User"
-            description="Try out our platform with a demo account"
-            onClick={() => handleLogin("demo")}
-          />
-          <LoginOption
-            icon={<Store size={40} />}
-            title="Demo Merchant Account"
-            description="Access your business dashboard"
-            onClick={() => handleLogin("merchant")}
-          />
-        </div>
+        {loggingIn ? (
+          <div className="flex flex-col items-center justify-center p-8">
+            <Loader2 className="h-16 w-16 animate-spin text-[#00b894] mb-4" />
+            <p className="text-xl text-gray-600 text-center">
+              {loginType === "demo" 
+                ? "Logging in with demo user address 0x1234...5678" 
+                : "Logging in with merchant address 0x9876...5432"}
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 p-6">
+            <LoginOption
+              icon={<User size={60} />}
+              title="Demo User"
+              description="Try out our platform with a demo account"
+              onClick={() => handleLogin("demo")}
+            />
+            <LoginOption
+              icon={<Store size={60} />}
+              title="Demo Merchant Account"
+              description="Access your business dashboard"
+              onClick={() => handleLogin("merchant")}
+            />
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
@@ -86,7 +102,7 @@ function LoginOption({
       <Button
         variant="outline"
         className="
-          w-full h-auto min-h-[12rem] py-6 flex flex-col items-center justify-center space-y-3
+          w-full h-auto min-h-[16rem] py-8 flex flex-col items-center justify-center space-y-4
           bg-gradient-to-r from-[#00b894] to-[#55efc4]
           hover:from-[#00a884] hover:to-[#4de0b3]
           border-2 border-[#00b894]
@@ -95,9 +111,9 @@ function LoginOption({
         "
         onClick={onClick}
       >
-        <div className="text-4xl mb-2">{icon}</div>
-        <div className="text-xl font-bold text-center px-2">{title}</div>
-        <div className="text-sm opacity-90 text-center px-4 whitespace-normal">
+        <div className="text-5xl mb-3">{icon}</div>
+        <div className="text-2xl font-bold text-center px-3">{title}</div>
+        <div className="text-base opacity-90 text-center px-6 whitespace-normal">
           {description}
         </div>
       </Button>
