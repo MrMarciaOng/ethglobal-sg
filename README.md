@@ -27,7 +27,8 @@ To test the smart contracts, proceed to the smart-contracts directory.
 
 ## Demo
 
-Walkthrough: https://www.youtube.com/
+Walkthrough: [Loom Video](https://www.loom.com/share/eaf905d75802497fb69115c48720ffd2?sid=66d6f7c5-1e40-44d1-b06d-87fa85797af0)  
+Website: [Website Link](https://ethglobal-sg.vercel.app/)
 
 ## Team
 
