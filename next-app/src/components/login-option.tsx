@@ -13,7 +13,12 @@ import {
 import { User, Store, Loader2 } from "lucide-react";
 import { useRouter } from 'next/navigation';
 
-export default function EnhancedLoginModal() {
+interface EnhancedLoginModalProps {
+  buttonText: string;
+  className?: string;
+}
+
+export default function EnhancedLoginModal({ buttonText, className }: EnhancedLoginModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [loggingIn, setLoggingIn] = useState(false);
   const [loginType, setLoginType] = useState<"demo" | "merchant" | null>(null);
@@ -35,14 +40,16 @@ export default function EnhancedLoginModal() {
     }, 2000);
   };
 
+  const defaultButtonClass = "inline-flex text-lg items-center justify-center rounded-md bg-gradient-to-r from-[#00b894] to-[#55efc4] px-6 py-3 text-base font-medium text-white hover:text-white shadow transition-all duration-200 ease-in-out hover:from-[#00a785] hover:to-[#4de6b5] hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50";
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          className="inline-flex text-lg items-center justify-center rounded-md bg-gradient-to-r from-[#00b894] to-[#55efc4] px-6 py-3 text-base font-medium text-white hover:text-white shadow transition-all duration-200 ease-in-out hover:from-[#00a785] hover:to-[#4de6b5] hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+          className={className || defaultButtonClass}
         >
-          Launch App
+          {buttonText}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[800px] max-w-full bg-white rounded-lg shadow-lg">

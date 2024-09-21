@@ -54,7 +54,7 @@ export default function LandingPage() {
               className="inline-flex h-10 items-center justify-center rounded-md bg-gradient-to-r from-[#00b894] to-[#55efc4] px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-all duration-200 ease-in-out hover:from-[#00a785] hover:to-[#4de6b5] hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"            >
               Launch App
             </Link> */}
-            <EnhancedLoginModal />
+            <EnhancedLoginModal buttonText="Launch DApp" />
           </div>
         </div>
       </header>
@@ -73,18 +73,14 @@ export default function LandingPage() {
                   dispute resolution.
                 </p>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                  <Link
-                    href="#"
-                    className="inline-flex h-10 items-center justify-center rounded-md bg-teal-800 px-8 text-sm font-medium text-white shadow transition-colors hover:bg-teal-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 disabled:pointer-events-none disabled:opacity-50"
-                  >
-                    Get Started as a Buyer
-                  </Link>
-                  <Link
-                    href="#"
-                    className="inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-8 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
-                  >
-                    Join as a Merchant
-                  </Link>
+                  <EnhancedLoginModal
+                    buttonText="Start Shopping"
+                    className="inline-flex h-10 items-center justify-center rounded-md bg-teal-600 px-8 text-sm font-medium text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 disabled:pointer-events-none disabled:opacity-50"
+                  />
+                  <EnhancedLoginModal
+                    buttonText="Join as a Merchant"
+                    className="bg-background text-foreground hover:bg-accent hover:text-accent-foreground"
+                  />
                 </div>
               </div>
               <div className="flex justify-center">
