@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Bell,
   ChevronDown,
-  Layout,
   ShoppingBag,
   Settings,
   Menu,
@@ -30,23 +29,20 @@ export default function DashboardLayout({
   const router = useRouter();
 
   const menuItems = [
-    { title: "Dashboard", icon: ShoppingBag, url: "/merchant/" },
-    { title: "Transactions", icon: Layout, url: "/merchant/transactions" },
-    { title: "Profile", icon: Settings, url: "/merchant/profile" },
+    { title: "transactions", icon: ShoppingBag, url: "/user/" },
+    { title: "Profile", icon: Settings, url: "/user/profile" },
   ];
-
   const handleLogout = () => {
     // Implement logout logic here
     console.log("Logging out...");
     // For example: clear local storage, reset auth state, redirect to login page
     router.push("/");
   };
-
   const Sidebar = ({ className = "", collapsed = false }) => (
     <ScrollArea
       className={cn("pb-12 flex flex-col h-full bg-background", className)}
     >
-      <div className="space-y-4 py-4 flex flex-col h-full">
+      <div className="space-y-4 py-4">
         <div className="px-3 py-2">
           <div className="space-y-1">
             {menuItems.map(({ title, icon: Icon, url }) => (
@@ -107,7 +103,7 @@ export default function DashboardLayout({
                   sidebarOpen ? "opacity-100 " : "hidden"
                 )}
               >
-                Merchant Portal
+                User Portal
               </h1>
               <Button
                 variant="ghost"

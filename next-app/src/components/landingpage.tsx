@@ -4,7 +4,7 @@
  * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
  */
 import Link from "next/link";
-
+import EnhancedLoginModal from "./login-option";
 export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen">
@@ -49,11 +49,12 @@ export default function LandingPage() {
                 FAQs
               </Link>
             </nav>
-            <Link
+            {/* <Link
               href="#"
               className="inline-flex h-10 items-center justify-center rounded-md bg-gradient-to-r from-[#00b894] to-[#55efc4] px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-all duration-200 ease-in-out hover:from-[#00a785] hover:to-[#4de6b5] hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"            >
               Launch App
-            </Link>
+            </Link> */}
+            <EnhancedLoginModal />
           </div>
         </div>
       </header>
