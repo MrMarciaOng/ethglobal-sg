@@ -4,9 +4,6 @@ pragma solidity 0.8.18;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 
-//! require 3 moderators to approve
-//! charge fees for merchant withdrawals maybe a % of withdrawal maybe 1%
-
 /**
  * @title   PaymentGateway
  * @dev     Contract for managing USDC payments for a single merchant with dispute resolution
@@ -27,6 +24,8 @@ contract PaymentGateway is AccessControl {
         uint256 timestamp;
         bool isDisputed;
         bool isResolved;
+        uint8 approvalCount;
+        mapping(address => bool) hasApproved;
     }
 
     mapping(uint256 => Transaction) public s_transactions;
@@ -34,6 +33,8 @@ contract PaymentGateway is AccessControl {
     uint256 public s_transactionCount;
     uint256 public constant DISPUTE_FEE = 10 * 10 ** 6; // 10 USDC
     uint256 public constant DISPUTE_PERIOD = 24 hours;
+    uint256 public constant MERCHANT_FEE_PERCENTAGE = 100; // 1% in basis points
+    uint8 public constant REQUIRED_APPROVALS = 3;
 
     /* Roles */
     bytes32 public constant MODERATOR_ROLE = keccak256("MODERATOR_ROLE");
@@ -45,14 +46,16 @@ contract PaymentGateway is AccessControl {
     //////////////////////////////////////////////////////////////*/
     event TransactionCreated(uint256 indexed transactionId, address buyer, uint256 amount);
     event TransactionDisputed(uint256 indexed transactionId);
+    event DisputeApproved(uint256 indexed transactionId, address moderator);
     event DisputeResolved(uint256 indexed transactionId, bool buyerWon);
-    event PaymentReleased(uint256 indexed transactionId, uint256 amount);
+    event PaymentReleased(uint256 indexed transactionId, uint256 amount, uint256 fee);
     event FeesWithdrawn(address indexed admin, uint256 amount);
 
     /*//////////////////////////////////////////////////////////////
                               CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
     constructor(address _usdcTokenAddress, address[] memory _moderators, address _merchant) {
+        require(_moderators.length >= REQUIRED_APPROVALS, "Not enough moderators");
         s_usdcToken = IERC20(_usdcTokenAddress);
         i_merchant = _merchant;
 
@@ -76,13 +79,13 @@ contract PaymentGateway is AccessControl {
         require(s_usdcToken.transferFrom(msg.sender, address(this), amount), "Transfer failed");
 
         uint256 newTransactionId = s_transactionCount;
-        s_transactions[newTransactionId] = Transaction({
-            buyer: msg.sender,
-            amount: amount,
-            timestamp: block.timestamp,
-            isDisputed: false,
-            isResolved: false
-        });
+        Transaction storage newTransaction = s_transactions[newTransactionId];
+        newTransaction.buyer = msg.sender;
+        newTransaction.amount = amount;
+        newTransaction.timestamp = block.timestamp;
+        newTransaction.isDisputed = false;
+        newTransaction.isResolved = false;
+        newTransaction.approvalCount = 0;
 
         emit TransactionCreated(newTransactionId, msg.sender, amount);
         s_transactionCount++;
@@ -107,14 +110,34 @@ contract PaymentGateway is AccessControl {
     }
 
     /**
+     * @notice  Approve a disputed transaction
+     * @param   transactionId  The ID of the disputed transaction
+     * @param   buyerWon  Whether the buyer won the dispute
+     */
+    function approveDispute(uint256 transactionId, bool buyerWon) external onlyRole(MODERATOR_ROLE) {
+        Transaction storage transaction = s_transactions[transactionId];
+        require(transaction.isDisputed, "Transaction not disputed");
+        require(!transaction.isResolved, "Dispute already resolved");
+        require(!transaction.hasApproved[msg.sender], "Already approved");
+
+        transaction.hasApproved[msg.sender] = true;
+        transaction.approvalCount++;
+
+        emit DisputeApproved(transactionId, msg.sender);
+
+        if (transaction.approvalCount >= REQUIRED_APPROVALS) {
+            resolveDispute(transactionId, buyerWon);
+        }
+    }
+
+    /**
      * @notice  Resolve a disputed transaction
      * @param   transactionId  The ID of the disputed transaction
      * @param   buyerWon  Whether the buyer won the dispute
      */
-    function resolveDispute(uint256 transactionId, bool buyerWon) external onlyRole(MODERATOR_ROLE) {
+    function resolveDispute(uint256 transactionId, bool buyerWon) internal {
         Transaction storage transaction = s_transactions[transactionId];
-        require(transaction.isDisputed, "Transaction not disputed");
-        require(!transaction.isResolved, "Dispute already resolved");
+        require(transaction.approvalCount >= REQUIRED_APPROVALS, "Not enough approvals");
 
         transaction.isResolved = true;
 
@@ -123,8 +146,6 @@ contract PaymentGateway is AccessControl {
         } else {
             require(s_usdcToken.transfer(i_merchant, transaction.amount), "Transfer to merchant failed");
         }
-
-        // The DISPUTE_FEE is always kept by the contract
 
         emit DisputeResolved(transactionId, buyerWon);
     }
@@ -138,13 +159,16 @@ contract PaymentGateway is AccessControl {
         require(!transaction.isDisputed, "Transaction is disputed");
         require(block.timestamp > transaction.timestamp + DISPUTE_PERIOD, "Dispute period not ended");
 
-        require(s_usdcToken.transfer(i_merchant, transaction.amount), "Transfer failed");
+        uint256 fee = (transaction.amount * MERCHANT_FEE_PERCENTAGE) / 10000;
+        uint256 amountToTransfer = transaction.amount - fee;
 
-        emit PaymentReleased(transactionId, transaction.amount);
+        require(s_usdcToken.transfer(i_merchant, amountToTransfer), "Transfer failed");
+
+        emit PaymentReleased(transactionId, amountToTransfer, fee);
     }
 
     /**
-     * @notice  Withdraw accumulated fees (dispute fees)
+     * @notice  Withdraw accumulated fees (dispute fees and merchant fees)
      * @param   amount  The amount of USDC to withdraw
      */
     function withdrawFees(uint256 amount) external onlyRole(ADMIN_ROLE) {
