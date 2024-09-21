@@ -7,21 +7,18 @@ import {
   Layout,
   ShoppingBag,
   Users,
-  BarChart,
   Settings,
   Menu,
-  X,
   Search,
   DollarSign,
-  Package,
   TrendingUp,
   ShoppingCart,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
@@ -34,24 +31,6 @@ export function DashboardLayout() {
     { title: "Transactions", icon: Layout },
     { title: "Disputes", icon: ShoppingBag },
     { title: "Settings", icon: Settings },
-  ];
-
-  const recentOrders = [
-    { id: "1234", customer: "John Doe", amount: 125.99, status: "Completed" },
-    { id: "1235", customer: "Jane Smith", amount: 89.99, status: "Processing" },
-    { id: "1236", customer: "Bob Johnson", amount: 199.99, status: "Shipped" },
-  ];
-
-  const todaySales = {
-    total: 1234.56,
-    orders: 15,
-    avgOrderValue: 82.3,
-  };
-
-  const topProducts = [
-    { name: "Product A", sales: 50 },
-    { name: "Product B", sales: 30 },
-    { name: "Product C", sales: 20 },
   ];
 
   const Sidebar = ({ className = "", collapsed = false }) => (

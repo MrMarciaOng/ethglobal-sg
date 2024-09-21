@@ -5,6 +5,8 @@
  */
 import Link from "next/link";
 import EnhancedLoginModal from "./login-option";
+import { JSX, SVGProps } from "react";
+
 export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen">
@@ -360,7 +362,9 @@ export default function LandingPage() {
     </div>
   );
 }
-function AccessibilityIcon(props) {
+function AccessibilityIcon(
+  props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>
+) {
   return (
     <svg
       {...props}
@@ -383,7 +387,7 @@ function AccessibilityIcon(props) {
   );
 }
 
-function BitcoinIcon(props) {
+function BitcoinIcon(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
@@ -401,7 +405,9 @@ function BitcoinIcon(props) {
     </svg>
   );
 }
-function EthereumIcon(props) {
+function EthereumIcon(
+  props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>
+) {
   return (
     <svg
       {...props}
@@ -422,7 +428,7 @@ function EthereumIcon(props) {
     </svg>
   );
 }
-function CheckIcon(props) {
+function CheckIcon(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
@@ -441,7 +447,9 @@ function CheckIcon(props) {
   );
 }
 
-function DollarSignIcon(props) {
+function DollarSignIcon(
+  props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>
+) {
   return (
     <svg
       {...props}
@@ -461,7 +469,9 @@ function DollarSignIcon(props) {
   );
 }
 
-function FastForwardIcon(props) {
+function FastForwardIcon(
+  props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>
+) {
   return (
     <svg
       {...props}
@@ -481,7 +491,7 @@ function FastForwardIcon(props) {
   );
 }
 
-function GlobeIcon(props) {
+function GlobeIcon(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
@@ -502,7 +512,7 @@ function GlobeIcon(props) {
   );
 }
 
-function InfoIcon(props) {
+function InfoIcon(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
@@ -523,7 +533,9 @@ function InfoIcon(props) {
   );
 }
 
-function LandmarkIcon(props) {
+function LandmarkIcon(
+  props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>
+) {
   return (
     <svg
       {...props}
@@ -547,7 +559,7 @@ function LandmarkIcon(props) {
   );
 }
 
-function LockIcon(props) {
+function LockIcon(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
@@ -567,7 +579,7 @@ function LockIcon(props) {
   );
 }
 
-function ReceiptIcon(props) {
+function ReceiptIcon(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
@@ -588,7 +600,7 @@ function ReceiptIcon(props) {
   );
 }
 
-function TicketIcon(props) {
+function TicketIcon(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
@@ -610,7 +622,7 @@ function TicketIcon(props) {
   );
 }
 
-function WalletIcon(props) {
+function WalletIcon(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
