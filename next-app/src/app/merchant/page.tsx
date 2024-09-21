@@ -2,7 +2,7 @@ import { DollarSign, ShoppingCart, Users, TrendingUp } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import React from "react"; // Ensure React is imported
-
+import { DailySalesBarChartComponent } from "@/components/daily-sales-bar-chart";
 const MerchantDashboardPage: React.FC = () => {
   return (
     <main className="flex-1 overflow-y-auto bg-muted/40 p-4 md:p-6 lg:p-8">
@@ -33,25 +33,14 @@ const MerchantDashboardPage: React.FC = () => {
         ))}
       </div>
       <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
-          <CardHeader>
-            <CardTitle>Overview</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[200px]">
-              <div className="flex h-full items-center justify-center text-muted-foreground">
-                Chart Placeholder hahaha
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <DailySalesBarChartComponent />
         <Card className="col-span-3">
           <CardHeader>
             <CardTitle>Recent Sales</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-8">
-              {["Alice Johnson", "Bob Smith", "Charlie Davis"].map(
+              {["Alice Johnson", "Bob Smith", "Charlie Davis", "David Lee", "Emily Chen"].map(
                 (name, i) => (
                   <div key={i} className="flex items-center">
                     <Avatar className="h-9 w-9">
@@ -70,12 +59,14 @@ const MerchantDashboardPage: React.FC = () => {
                             "0xfda91...ef734",
                             "0xd0281...md592",
                             "0xmpl45...67890",
+                            "0xhe962...83718",
+                            "0xie031...34920",
                           ][i]
                         }
                       </p>
                     </div>
                     <div className="ml-auto font-medium">
-                      +${[140, 100, 238][i]}
+                      +${[140, 100, 238, 120, 150][i]}
                     </div>
                   </div>
                 )
