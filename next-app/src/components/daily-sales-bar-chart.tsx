@@ -52,7 +52,17 @@ export function DailySalesBarChartComponent() {
                 }}
                 labelFormatter={(label) => `Date: ${data.find(item => item.day === label)?.date}`}
               />
-              <Bar dataKey="sales" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+              <Bar 
+                dataKey="sales" 
+                radius={[4, 4, 0, 0]}
+                fill="url(#colorGradient)"
+              />
+              <defs>
+                <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#00b894" />
+                  <stop offset="100%" stopColor="#55efc4" />
+                </linearGradient>
+              </defs>
             </BarChart>
           </ResponsiveContainer>
         </div>

@@ -13,7 +13,8 @@ import {
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { CopyIcon, EditIcon } from "lucide-react";
+import { CopyIcon, EditIcon, CheckIcon } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 import {
   Dialog,
   DialogContent,
@@ -27,7 +28,7 @@ import { Input } from "@/components/ui/input";
 const merchantData = {
   name: "EthGlobal Demo Merchant Account",
   email: "contact@ethglobal.com",
-  contractAddress: "0x1234567890123456789012345678901234567890",
+  contractAddress: "0xF8d56ca172a99CD17B9aaE9de3b84C2a851A3202",
   createdAt: "2024-09-21",
   chain: ["Ethereum", "Polygon", "Binance Smart Chain", "Base"],
 };
@@ -35,10 +36,25 @@ const merchantData = {
 export function MerchantProfileComponent() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editedData, setEditedData] = useState({ ...merchantData });
+  const [isCopied, setIsCopied] = useState(false);
+  const { toast } = useToast();
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    // In a real app, you might want to show a toast notification here
+    navigator.clipboard.writeText(text).then(() => {
+      setIsCopied(true);
+      toast({
+        title: "Copied!",
+        description: "Contract address copied to clipboard.",
+      });
+      setTimeout(() => setIsCopied(false), 2000);
+    }).catch((err) => {
+      console.error('Failed to copy text: ', err);
+      toast({
+        title: "Error",
+        description: "Failed to copy contract address.",
+        variant: "destructive",
+      });
+    });
   };
 
   // Function to determine the color of the chain badge
@@ -73,7 +89,7 @@ export function MerchantProfileComponent() {
       <div className="grid gap-8 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Smart Contract Account</CardTitle>
+            <CardTitle>Smart Contract Payment Account</CardTitle>
             <CardDescription>Your on-chain account details</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -89,7 +105,11 @@ export function MerchantProfileComponent() {
                   onClick={() => copyToClipboard(merchantData.contractAddress)}
                   aria-label="Copy contract address"
                 >
-                  <CopyIcon className="h-4 w-4" />
+                  {isCopied ? (
+                    <CheckIcon className="h-4 w-4 text-green-500" />
+                  ) : (
+                    <CopyIcon className="h-4 w-4" />
+                  )}
                 </Button>
               </div>
             </div>

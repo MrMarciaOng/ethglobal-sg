@@ -89,8 +89,8 @@ export default function LandingPage() {
               </div>
               <div className="flex justify-center">
                 <img
-                  src="https://g-vptxutghnpl.vusercontent.net/placeholder.svg?height=550&width=550"
-                  width={550}
+                  src="/safewire.png"
+                  width={750}
                   height={550}
                   alt="Safewire - Secure and Fair Payments"
                   className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full"
@@ -327,17 +327,11 @@ export default function LandingPage() {
                 >
                   Apply Now
                 </Link>
-                <Link
-                  href="#"
-                  className="inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-8 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
-                >
-                  Learn More
-                </Link>
               </div>
             </div>
             <div className="mx-auto grid items-center gap-6 py-12 lg:grid-cols-2 lg:gap-12">
               <img
-                src="https://g-vptxutghnpl.vusercontent.net/placeholder.svg?height=550&width=550"
+                src="/cat-jury.webp"
                 width={550}
                 height={550}
                 alt="Join as a Moderator"
@@ -349,8 +343,8 @@ export default function LandingPage() {
                     Become a Moderator
                   </h3>
                   <p className="text-muted-foreground">
-                    Stake ETH to participate as a mod, resolve disputes, and
-                    earn rewards.
+                    Stake ETH or USDC to participate as a mod, resolve disputes,
+                    and earn rewards.
                   </p>
                 </div>
                 <div className="space-y-1">

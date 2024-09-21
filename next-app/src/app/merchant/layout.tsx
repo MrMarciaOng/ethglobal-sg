@@ -19,7 +19,6 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
-
 export default function DashboardLayout({
   children,
 }: {
@@ -83,7 +82,6 @@ export default function DashboardLayout({
       </div>
     </ScrollArea>
   );
-
   return (
     <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
       <div className="flex h-screen overflow-hidden bg-background">

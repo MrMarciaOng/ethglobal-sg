@@ -56,8 +56,8 @@ export default function EnhancedLoginModal() {
             <Loader2 className="h-16 w-16 animate-spin text-[#00b894] mb-4" />
             <p className="text-xl text-gray-600 text-center">
               {loginType === "demo" 
-                ? "Logging in with demo user address 0x1234...5678" 
-                : "Logging in with merchant address 0x9876...5432"}
+                ? "Logging in with demo user address 0x102B...661e" 
+                : "Logging in with merchant address 0xB2ED8...8484"}
             </p>
           </div>
         ) : (

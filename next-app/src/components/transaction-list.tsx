@@ -81,7 +81,7 @@ const mockTransactions = [
   {
     id: "0x51774388...3f9",
     date: "2024-09-21 03:04",
-    buyer: "0x8603b59f2bac4cdb1bf9d844d9008cacf1659d72",
+    buyer: "0x102B2aEEc94384fe4A0F8f1A2d7FCc40E4B3661e",
     amount: "40.26",
     status: "Claimable",
     userPerspective: "merchant",
@@ -89,7 +89,7 @@ const mockTransactions = [
   {
     id: "0xd0201874...f5a",
     date: "2024-09-19 06:54",
-    buyer: "0x8d0649a99fcd566411fe3ebaa809511bf3bdef22",
+    buyer: "0x9B9Ba98A7859B8A20287bC2f03890f19B9C1b2B7",
     amount: "91.69",
     status: "Pending",
     userPerspective: "merchant",
@@ -115,7 +115,7 @@ const mockTransactions = [
   {
     id: "0xb5ff0e92...91d",
     date: "2024-09-19 11:23",
-    buyer: "0x782e0cfd4534f47b8864b66068cc8c81b3487f51",
+    buyer: "0x102B2aEEc94384fe4A0F8f1A2d7FCc40E4B3661e",
     amount: "81.76",
     status: "Pending",
     userPerspective: "merchant",
