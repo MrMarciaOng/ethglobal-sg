@@ -31,7 +31,7 @@ export default function DashboardLayout({
   const menuItems = [
     { title: "Dashboard", icon: ShoppingBag, url: "/merchant/" },
     { title: "Transactions", icon: Layout, url: "/merchant/transactions" },
-    { title: "Settings", icon: Settings, url: "/merchant/settings" },
+    { title: "Profile", icon: Settings, url: "/merchant/profile" },
   ];
 
   const Sidebar = ({ className = "", collapsed = false }) => (
