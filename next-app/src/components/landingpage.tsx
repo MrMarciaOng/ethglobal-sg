@@ -44,12 +44,12 @@ export default function LandingPage() {
               >
                 Join as a Mod
               </Link>
-              <Link
+              {/* <Link
                 href="#faqs"
                 className="text-sm font-medium hover:underline underline-offset-4"
               >
                 FAQs
-              </Link>
+              </Link> */}
             </nav>
             {/* <Link
               href="#"
@@ -97,7 +97,53 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
-
+        <section id="showcase" className="w-full py-3">
+          <div className="max-w-7xl mx-auto px-4 md:px-6">
+            <div className="flex flex-col items-center justify-center space-y-2 text-center mb-4">
+              <h3 className="text-xl font-bold tracking-tighter sm:text-2xl text-foreground">
+                Deployed On
+              </h3>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="flex items-center justify-center">
+                <Image
+                  src="/eth.jpg"
+                  width={112}
+                  height={75}
+                  alt="Ethereum"
+                  className="rounded-lg object-contain"
+                />
+              </div>
+              <div className="flex items-center justify-center">
+                <Image
+                  src="/arb.jpg"
+                  width={112}
+                  height={75}
+                  alt="Arbitrum"
+                  className="rounded-lg object-contain"
+                />
+              </div>
+              <div className="flex items-center justify-center">
+                <Image
+                  src="/base.jpg"
+                  width={112}
+                  height={75}
+                  alt="Base"
+                  className="rounded-lg object-contain"
+                />
+              </div>
+              <div className="flex items-center justify-center">
+                <Image
+                  src="/hed.jpg"
+                  width={112}
+                  height={75}
+                  alt="Hedra"
+                  className="rounded-lg object-contain"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
         <section
           id="how-it-works"
           className="w-full py-12 md:py-24 lg:py-32 bg-muted"
