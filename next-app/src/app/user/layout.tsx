@@ -10,6 +10,7 @@ import {
   Menu,
   Search,
   LogOut,
+  CreditCard,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,7 @@ export default function DashboardLayout({
 
   const menuItems = [
     { title: "transactions", icon: ShoppingBag, url: "/user/" },
+    { title: "pay", icon: CreditCard, url: "/user/pay" },
     { title: "Profile", icon: Settings, url: "/user/profile" },
   ];
   const handleLogout = () => {
