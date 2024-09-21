@@ -183,6 +183,7 @@ type Transaction = {
 };
 
 function MerchantDashboardContent() {
+  const [transactions, setTransactions] = useState(mockTransactions);
   const [selectedTransaction, setSelectedTransaction] =
     useState<Transaction | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -205,6 +206,18 @@ function MerchantDashboardContent() {
       await claimFunds({ args: [transactionId] });
     } catch (error) {
       console.error("Error claiming funds:", error);
+      // Show an error toast here if needed
+    } finally {
+      // Update the transaction status to "Completed"
+      setTransactions(prevTransactions =>
+        prevTransactions.map(transaction =>
+          transaction.id === transactionId
+            ? { ...transaction, status: "Completed" }
+            : transaction
+        )
+      );
+      // Close the dialog
+      closeDialog();
     }
   };
 
@@ -220,7 +233,6 @@ function MerchantDashboardContent() {
         description:
           "The transaction has been processed and the funds have been transferred to your wallet.",
       });
-      closeDialog();
     }
 
     if (isError) {
@@ -231,7 +243,7 @@ function MerchantDashboardContent() {
         variant: "destructive",
       });
     }
-  }, [isSuccess, isError, closeDialog]);
+  }, [isSuccess, isError]);
 
   return (
     <div className="container mx-auto p-4">
@@ -250,7 +262,7 @@ function MerchantDashboardContent() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {mockTransactions.map((transaction) => (
+          {transactions.map((transaction) => (
             <TableRow key={transaction.id}>
               <TableCell className="font-mono">{transaction.id}</TableCell>
               <TableCell>{transaction.date}</TableCell>
