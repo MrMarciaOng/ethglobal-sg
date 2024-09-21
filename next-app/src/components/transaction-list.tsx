@@ -165,44 +165,72 @@ function MerchantDashboardContent() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [isError, setIsError] = useState(false);
 
+  const [inputTransactionId, setInputTransactionId] = useState<string>(
+    selectedTransaction?.id || ''
+  );
+
+  const [txHash, setTxHash] = useState<string | null>(null);
+  const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
+
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
+
   const mockClaimFunds = async (transactionId: string) => {
-    setIsLoading(true);
-    try {
-      // Simulate API call or blockchain interaction
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log(`Claiming funds for transaction ${transactionId}`);
-      setIsSuccess(true);
-    } catch (error) {
-      console.error("Error claiming funds:", error);
-      setIsError(true);
-    } finally {
-      setIsLoading(false);
+    const response = await fetch('/api/claimFunds', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ transactionId }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to claim funds');
     }
+
+    return response.json();
   };
 
   const handleClaimFunds = async (transactionId: string) => {
     try {
-      await mockClaimFunds(transactionId);
-    } catch (error) {
+      console.log('Calling backend to claim funds');
+      const response = await mockClaimFunds(transactionId);
+      console.log(response);
+
+      if (response.success && response.txHash) {
+        setTxHash(response.txHash);
+        setIsSuccessDialogOpen(true);
+      } else {
+        throw new Error(response.error || 'Unknown error');
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
       console.error("Error claiming funds:", error);
-      // Show an error toast here if needed
+      setErrorMessage(error.message || 'Failed to claim funds.');
+      setIsErrorDialogOpen(true);
     } finally {
-      // Update the transaction status to "Completed"
-      setTransactions((prevTransactions) =>
-        prevTransactions.map((transaction) =>
-          transaction.id === transactionId
-            ? { ...transaction, status: "Completed" }
-            : transaction
-        )
-      );
-      // Close the dialog
-      closeDialog();
+      // Update the transaction status to "Completed" only if successful
+      if (isSuccessDialogOpen) {
+        setTransactions((prevTransactions) =>
+          prevTransactions.map((transaction) =>
+            transaction.id === transactionId
+              ? { ...transaction, status: "Completed" }
+              : transaction
+          )
+        );
+      }
+      // Close the claim dialog
+      // closeDialog();
     }
   };
 
   const closeDialog = () => {
     setIsDialogOpen(false);
     setSelectedTransaction(null);
+    setInputTransactionId('');
+    setTxHash(null);
+    setErrorMessage(null);
+    setIsErrorDialogOpen(false);
   };
 
   const openDisputeChat = (transaction: Transaction) => {
@@ -257,7 +285,7 @@ function MerchantDashboardContent() {
                   variant="outline"
                   className={
                     statusColors[
-                      transaction.status as keyof typeof statusColors
+                    transaction.status as keyof typeof statusColors
                     ]
                   }
                 >
@@ -325,7 +353,14 @@ function MerchantDashboardContent() {
             <DialogDescription>
               Are you sure you want to claim the funds for this transaction?
               <br />
-              Transaction ID: {selectedTransaction?.id}
+              Transaction ID:
+              <input
+                type="text"
+                value={inputTransactionId}
+                onChange={(e) => setInputTransactionId(e.target.value)}
+                className="mt-2 p-2 border border-gray-300 rounded"
+                placeholder="Enter Transaction ID"
+              />
               <br />
               Amount: {selectedTransaction?.amount} USDC
             </DialogDescription>
@@ -336,13 +371,68 @@ function MerchantDashboardContent() {
             </Button>
             <Button
               onClick={() => {
-                if (selectedTransaction?.id) {
-                  handleClaimFunds(selectedTransaction.id);
+                if (inputTransactionId) {
+                  handleClaimFunds(inputTransactionId);
                 }
               }}
-              disabled={isLoading || !selectedTransaction?.id}
+              disabled={isLoading || !inputTransactionId}
             >
               {isLoading ? "Processing..." : "Confirm Claim"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isSuccessDialogOpen} onOpenChange={setIsSuccessDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Transaction Successful</DialogTitle>
+            <DialogDescription>
+              Your transaction has been successfully processed.
+              <br />
+              Transaction Hash: {txHash}
+              <br />
+              <a
+                href={`https://sepolia.etherscan.io/tx/${txHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 underline"
+              >
+                View on Sepolia Etherscan
+              </a>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              onClick={() => {
+                setIsSuccessDialogOpen(false);
+                setTxHash(null);
+              }}
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isErrorDialogOpen} onOpenChange={setIsErrorDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Transaction Failed</DialogTitle>
+            <DialogDescription>
+              There was an error processing your transaction.
+              <br />
+              Error: {errorMessage}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              onClick={() => {
+                setIsErrorDialogOpen(false);
+                setErrorMessage(null);
+              }}
+            >
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>

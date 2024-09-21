@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -19,59 +20,74 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
-import { CheckCircle2 } from "lucide-react";
 
 export function UsdcTransferForm() {
   const [merchant, setMerchant] = useState("");
   const [amount, setAmount] = useState("");
-  const [showConfirmation, setShowConfirmation] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [transferTxHash, setTransferTxHash] = useState<string | null>(null);
+  const [transferTransactionId, setTransferTransactionId] = useState<string | null>(null);
+  const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
+  const [transferErrorMessage, setTransferErrorMessage] = useState<string | null>(null);
+  const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setShowConfirmation(true);
-  };
+    try {
+      if (!merchant || !amount) {
+        throw new Error("Please select a merchant and enter an amount.");
+      }
 
-  const handleConfirm = () => {
-    setShowConfirmation(false);
-    setIsLoading(true);
-    setTimeout(() => {
+      const transferAmount = parseFloat(amount);
+      if (isNaN(transferAmount) || transferAmount <= 0) {
+        throw new Error("Please enter a valid amount.");
+      }
+
+      setIsLoading(true);
+      const response = await fetch('/api/transfer', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ amount: transferAmount }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setTransferTxHash(data.txHash);
+        setTransferTransactionId(data.transactionId);
+        setIsSuccessDialogOpen(true);
+      } else {
+        throw new Error(data.error || 'Transfer failed.');
+      }
+    } catch (error: any) {
+      console.error('Error during transfer:', error);
+      setTransferErrorMessage(error.message || 'Transfer failed.');
+      setIsErrorDialogOpen(true);
+    } finally {
       setIsLoading(false);
-      setSuccessMessage(`Successfully transferred ${amount} USDC to ${merchant}`);
-      // Reset form fields
-      setMerchant("");
       setAmount("");
-      // Clear success message after 5 seconds
-      setTimeout(() => setSuccessMessage(""), 5000);
-    }, 2000);
+      setMerchant("");
+    }
   };
 
   return (
     <div className="container mx-auto py-8 px-5">
       <Card className="w-[687.5px]">
-        {" "}
-        {/* Increased from 550px to 687.5px (25% increase) */}
         <CardHeader>
           <CardTitle>Transfer USDC</CardTitle>
         </CardHeader>
         <CardContent>
-          {successMessage && (
-            <div className="mb-4 p-2 bg-green-100 text-green-700 rounded-md flex items-center">
-              <CheckCircle2 className="mr-2 h-5 w-5" />
-              {successMessage}
-            </div>
-          )}
           <form onSubmit={handleSubmit}>
             <div className="grid w-full items-center gap-4">
               <div className="flex flex-col space-y-1.5">
@@ -95,13 +111,17 @@ export function UsdcTransferForm() {
                   placeholder="Enter amount"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
+                  min="0"
+                  step="any"
                 />
               </div>
             </div>
           </form>
         </CardContent>
         <CardFooter className="flex justify-between">
-          <Button variant="outline">Cancel</Button>
+          <Button variant="outline" onClick={() => { /* Optional: handle cancel */ }}>
+            Cancel
+          </Button>
           <Button
             type="submit"
             onClick={handleSubmit}
@@ -110,29 +130,71 @@ export function UsdcTransferForm() {
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Sending...
+                Processing...
               </>
             ) : (
               "Transfer"
             )}
           </Button>
         </CardFooter>
-        <AlertDialog open={showConfirmation} onOpenChange={setShowConfirmation}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Confirm Transfer</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to transfer {amount} USDC to {merchant}?
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleConfirm}>
-                Confirm
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+
+        <Dialog open={isSuccessDialogOpen} onOpenChange={setIsSuccessDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Transfer Successful</DialogTitle>
+              <DialogDescription>
+                Your transfer has been successfully processed.
+                <br />
+                Transaction Hash: {transferTxHash}
+                <br />
+                Transaction ID: {transferTransactionId}
+                <br />
+                <a
+                  href={`https://sepolia.etherscan.io/tx/${transferTxHash}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 underline"
+                >
+                  View on Sepolia Etherscan
+                </a>
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                onClick={() => {
+                  setIsSuccessDialogOpen(false);
+                  setTransferTxHash(null);
+                  setTransferTransactionId(null);
+                }}
+              >
+                Close
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isErrorDialogOpen} onOpenChange={setIsErrorDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Transfer Failed</DialogTitle>
+              <DialogDescription>
+                There was an error processing your transfer.
+                <br />
+                Error: {transferErrorMessage}
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                onClick={() => {
+                  setIsErrorDialogOpen(false);
+                  setTransferErrorMessage(null);
+                }}
+              >
+                Close
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </Card>
     </div>
   );
