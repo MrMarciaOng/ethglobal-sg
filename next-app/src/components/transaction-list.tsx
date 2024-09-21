@@ -1,12 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  useContractWrite,
-  WagmiProvider,
-  createConfig,
-  http,
-} from "wagmi";
+import { WagmiProvider, createConfig, http } from "wagmi";
 import { mainnet } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -36,7 +31,6 @@ import {
 import { AlertCircle, CheckCircle2, Clock } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { DisputeChatComponent } from "./dispute-chat";
-
 
 const mockTransactions = [
   {
@@ -167,22 +161,28 @@ function MerchantDashboardContent() {
   const [selectedDisputeTransaction, setSelectedDisputeTransaction] =
     useState<Transaction | null>(null);
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isError, setIsError] = useState(false);
 
-  // Replace with your actual contract details
-  const {
-    writeAsync: claimFunds,
-    isLoading,
-    isSuccess,
-    isError,
-  } = useContractWrite({
-    address: "0x..." as `0x${string}`,
-    abi: [] as const,
-    functionName: "claimFunds",
-  });
+  const mockClaimFunds = async (transactionId: string) => {
+    setIsLoading(true);
+    try {
+      // Simulate API call or blockchain interaction
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      console.log(`Claiming funds for transaction ${transactionId}`);
+      setIsSuccess(true);
+    } catch (error) {
+      console.error("Error claiming funds:", error);
+      setIsError(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleClaimFunds = async (transactionId: string) => {
     try {
-      await claimFunds({ args: [transactionId] });
+      await mockClaimFunds(transactionId);
     } catch (error) {
       console.error("Error claiming funds:", error);
       // Show an error toast here if needed
@@ -352,6 +352,7 @@ function MerchantDashboardContent() {
         <DialogContent className="max-w-4xl">
           {selectedDisputeTransaction && (
             <DisputeChatComponent
+              messages={[]}
               transactionId={selectedDisputeTransaction.id}
               disputeEndDate={new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)} // Set dispute end date to 7 days from now
               userPerspective="merchant"
