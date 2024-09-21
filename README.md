@@ -1,6 +1,6 @@
 # SafeWire
 
-SafeWire is a project developed for the ETHGlobal Hackathon 2024 in Singapore.
+SafeWire is an innovative payment dispute infrastructure project developed for the ETHGlobal Hackathon 2024 in Singapore. It aims to revolutionize the way online transactions are conducted by providing a secure, fair, and decentralized payment system with built-in dispute resolution mechanisms.
 
 <p align="center">•
   <a href="#setup">Setup</a> •
@@ -48,9 +48,11 @@ Email: devchain7890@gmail.com <br/>
 Github: https://github.com/hougangdev <br/>
 
 ## Features
-
+- Decentralized Dispute Resolution using smart contracts
+- Full stack application payment infrastructure with messaging potential
+- Dashboard for merchant
 ## Vision
-
+By leveraging these technologies and implementing innovative features, SafeWire creates a robust, secure, and user-friendly payment dispute infrastructure that has the potential to significantly improve trust and security in online transactions.
 ## License
 
 The MIT License (MIT)
