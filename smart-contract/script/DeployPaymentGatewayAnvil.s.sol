@@ -20,7 +20,7 @@ contract DeployPaymentGateway is Script {
         vm.startBroadcast();
 
         // Deploy the contract
-        PaymentGateway paymentGateway = new PaymentGateway(usdcAddress, moderators, merchant);
+        PaymentGateway paymentGateway = new PaymentGateway(usdcAddress, merchant);
 
         // Grant the DEFAULT_ADMIN_ROLE to the deployer (which will be the test contract in this case)
         paymentGateway.grantRole(paymentGateway.DEFAULT_ADMIN_ROLE(), msg.sender);
