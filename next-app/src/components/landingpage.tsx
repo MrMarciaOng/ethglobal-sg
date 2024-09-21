@@ -329,7 +329,7 @@ export default function LandingPage() {
             </div>
             <div className="mx-auto grid items-center gap-6 py-12 lg:grid-cols-2 lg:gap-12">
               <Image
-                src="/cat-jury.webp"
+                src="/cat-jury.png"
                 width={550}
                 height={550}
                 alt="Join as a Moderator"

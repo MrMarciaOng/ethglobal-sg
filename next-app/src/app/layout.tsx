@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     title: "Safewire - Secure and Fair Decentralized Payments",
     description:
       "Experience secure payments with Safewire's innovative payment infrastructure.",
-    images: ["https://yourdomain.com/images/safewire.png"],
+    images: ["https://ethglobal-sg.vercel.app/safewire.png"],
   },
 };
 
