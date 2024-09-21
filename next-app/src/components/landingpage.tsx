@@ -6,7 +6,7 @@
 import Link from "next/link";
 import EnhancedLoginModal from "./login-option";
 import { JSX, SVGProps } from "react";
-
+import Image from "next/image";
 export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen">
@@ -70,9 +70,9 @@ export default function LandingPage() {
                   Secure and Fair Decentralized Payments with Safewire
                 </h1>
                 <p className="max-w-[600px] text-emerald-100 md:text-xl">
-                  Empower your transactions with Safewire's innovative payment
-                  infrastructure. Experience secure payments with built-in
-                  dispute resolution.
+                  Empower your transactions with Safewire&apos;s innovative
+                  payment infrastructure. Experience secure payments with
+                  built-in dispute resolution.
                 </p>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
                   <EnhancedLoginModal
@@ -86,7 +86,7 @@ export default function LandingPage() {
                 </div>
               </div>
               <div className="flex justify-center">
-                <img
+                <Image
                   src="/safewire.png"
                   width={750}
                   height={550}
@@ -328,7 +328,7 @@ export default function LandingPage() {
               </div>
             </div>
             <div className="mx-auto grid items-center gap-6 py-12 lg:grid-cols-2 lg:gap-12">
-              <img
+              <Image
                 src="/cat-jury.webp"
                 width={550}
                 height={550}
@@ -362,49 +362,7 @@ export default function LandingPage() {
     </div>
   );
 }
-function AccessibilityIcon(
-  props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>
-) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="16" cy="4" r="1" />
-      <path d="m18 19 1-7-6 1" />
-      <path d="m5 8 3-3 5.5 3-2.36 3.5" />
-      <path d="M4.24 14.5a5 5 0 0 0 6.88 6" />
-      <path d="M13.76 17.5a5 5 0 0 0-6.88-6" />
-    </svg>
-  );
-}
 
-function BitcoinIcon(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M11.767 19.089c4.924.868 6.14-6.025 1.216-6.894m-1.216 6.894L5.86 18.047m5.908 1.042-.347 1.97m1.563-8.864c4.924.869 6.14-6.025 1.215-6.893m-1.215 6.893-3.94-.694m5.155-6.2L8.29 4.26m5.908 1.042.348-1.97M7.48 20.364l3.126-17.727" />
-    </svg>
-  );
-}
 function EthereumIcon(
   props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>
 ) {
@@ -529,32 +487,6 @@ function InfoIcon(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
       <circle cx="12" cy="12" r="10" />
       <path d="M12 16v-4" />
       <path d="M12 8h.01" />
-    </svg>
-  );
-}
-
-function LandmarkIcon(
-  props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>
-) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <line x1="3" x2="21" y1="22" y2="22" />
-      <line x1="6" x2="6" y1="18" y2="11" />
-      <line x1="10" x2="10" y1="18" y2="11" />
-      <line x1="14" x2="14" y1="18" y2="11" />
-      <line x1="18" x2="18" y1="18" y2="11" />
-      <polygon points="12 2 20 7 4 7" />
     </svg>
   );
 }

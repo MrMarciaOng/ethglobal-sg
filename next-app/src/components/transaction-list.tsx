@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import {
-  useAccount,
   useContractWrite,
   WagmiProvider,
   createConfig,
@@ -38,45 +37,7 @@ import { AlertCircle, CheckCircle2, Clock } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { DisputeChatComponent } from "./dispute-chat";
 
-// Function to generate a random date within the last 3 days
-function getRandomRecentDate() {
-  const now = new Date();
-  const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
-  return new Date(
-    threeDaysAgo.getTime() +
-      Math.random() * (now.getTime() - threeDaysAgo.getTime())
-  );
-}
 
-// Function to format date as "YYYY-MM-DD HH:mm"
-function formatDate(date: Date) {
-  return date.toISOString().slice(0, 16).replace("T", " ");
-}
-
-// Function to generate a random wallet address
-function generateRandomWalletAddress() {
-  return `0x${Array.from({ length: 40 }, () =>
-    Math.floor(Math.random() * 16).toString(16)
-  ).join("")}`;
-}
-
-// Generate random mock transactions
-// const mockTransactions = Array.from({ length: 10 }, (_, index) => {
-//   const statuses = ["Pending", "Claimable", "Disputed", "Completed"];
-//   const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
-//   const randomAmount = (Math.random() * 100 + 10).toFixed(2);
-//   const randomDate = getRandomRecentDate();
-
-//   return {
-//     id: `0x${Math.random().toString(16).slice(2, 10)}...${Math.random()
-//       .toString(16)
-//       .slice(2, 5)}`,
-//     date: formatDate(randomDate),
-//     buyer: generateRandomWalletAddress(),
-//     amount: randomAmount,
-//     status: randomStatus,
-//   };
-// });
 const mockTransactions = [
   {
     id: "0x51774388...3f9",
@@ -205,7 +166,7 @@ function MerchantDashboardContent() {
   const [isDisputeChatOpen, setIsDisputeChatOpen] = useState(false);
   const [selectedDisputeTransaction, setSelectedDisputeTransaction] =
     useState<Transaction | null>(null);
-  const { address: _address } = useAccount();
+
 
   // Replace with your actual contract details
   const {
