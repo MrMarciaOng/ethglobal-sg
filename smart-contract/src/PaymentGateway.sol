@@ -4,7 +4,18 @@ pragma solidity 0.8.18;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 
+//! require 3 moderators to approve
+//! charge fees for merchant withdrawals maybe a % of withdrawal maybe 1%
+
+/**
+ * @title   PaymentGateway
+ * @dev     Contract for managing USDC payments for a single merchant with dispute resolution
+ * @notice  This contract allows for creating transactions, disputing them, and resolving disputes through off-chain moderation
+ */
 contract PaymentGateway is AccessControl {
+    /*//////////////////////////////////////////////////////////////
+                               VARIABLES
+    //////////////////////////////////////////////////////////////*/
     IERC20 public s_usdcToken;
 
     address public immutable i_merchant; // The merchant's address
@@ -29,12 +40,18 @@ contract PaymentGateway is AccessControl {
     bytes32 public constant MERCHANT_ROLE = keccak256("MERCHANT_ROLE");
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
+    /*//////////////////////////////////////////////////////////////
+                                 EVENTS
+    //////////////////////////////////////////////////////////////*/
     event TransactionCreated(uint256 indexed transactionId, address buyer, uint256 amount);
     event TransactionDisputed(uint256 indexed transactionId);
     event DisputeResolved(uint256 indexed transactionId, bool buyerWon);
     event PaymentReleased(uint256 indexed transactionId, uint256 amount);
     event FeesWithdrawn(address indexed admin, uint256 amount);
 
+    /*//////////////////////////////////////////////////////////////
+                              CONSTRUCTOR
+    //////////////////////////////////////////////////////////////*/
     constructor(address _usdcTokenAddress, address[] memory _moderators, address _merchant) {
         s_usdcToken = IERC20(_usdcTokenAddress);
         i_merchant = _merchant;
@@ -48,6 +65,13 @@ contract PaymentGateway is AccessControl {
         }
     }
 
+    /*//////////////////////////////////////////////////////////////
+                               FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
+    /**
+     * @notice  Create a new transaction
+     * @param   amount  The amount of USDC to be transferred
+     */
     function createTransaction(uint256 amount) external {
         require(s_usdcToken.transferFrom(msg.sender, address(this), amount), "Transfer failed");
 
@@ -64,6 +88,11 @@ contract PaymentGateway is AccessControl {
         s_transactionCount++;
     }
 
+    /**
+     * @notice  Dispute a transaction
+     * @param   transactionId  The ID of the transaction to dispute
+     * @notice  Buyer can open a dispute
+     */
     function disputeTransaction(uint256 transactionId) external {
         Transaction storage transaction = s_transactions[transactionId];
         require(msg.sender == transaction.buyer, "Only buyer can dispute");
@@ -77,6 +106,11 @@ contract PaymentGateway is AccessControl {
         emit TransactionDisputed(transactionId);
     }
 
+    /**
+     * @notice  Resolve a disputed transaction
+     * @param   transactionId  The ID of the disputed transaction
+     * @param   buyerWon  Whether the buyer won the dispute
+     */
     function resolveDispute(uint256 transactionId, bool buyerWon) external onlyRole(MODERATOR_ROLE) {
         Transaction storage transaction = s_transactions[transactionId];
         require(transaction.isDisputed, "Transaction not disputed");
@@ -95,6 +129,10 @@ contract PaymentGateway is AccessControl {
         emit DisputeResolved(transactionId, buyerWon);
     }
 
+    /**
+     * @notice  Release payment for a non-disputed transaction after the dispute period
+     * @param   transactionId  The ID of the transaction
+     */
     function releasePayment(uint256 transactionId) external onlyRole(MERCHANT_ROLE) {
         Transaction storage transaction = s_transactions[transactionId];
         require(!transaction.isDisputed, "Transaction is disputed");
@@ -105,12 +143,20 @@ contract PaymentGateway is AccessControl {
         emit PaymentReleased(transactionId, transaction.amount);
     }
 
+    /**
+     * @notice  Withdraw accumulated fees (dispute fees)
+     * @param   amount  The amount of USDC to withdraw
+     */
     function withdrawFees(uint256 amount) external onlyRole(ADMIN_ROLE) {
         require(amount <= s_usdcToken.balanceOf(address(this)), "Insufficient balance");
         require(s_usdcToken.transfer(msg.sender, amount), "Transfer failed");
         emit FeesWithdrawn(msg.sender, amount);
     }
 
+    /**
+     * @notice  Get all transaction IDs for the merchant
+     * @return  uint256[]  An array of transaction IDs
+     */
     function getMerchantTransactions() external view returns (uint256[] memory) {
         uint256[] memory merchantTxIds = new uint256[](s_transactionCount);
         for (uint256 i = 0; i < s_transactionCount; i++) {
