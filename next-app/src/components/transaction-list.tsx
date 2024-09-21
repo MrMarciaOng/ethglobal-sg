@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/tooltip";
 import { AlertCircle, CheckCircle2, Clock } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
+import { DisputeChatComponent } from "./dispute-chat";
 
 // Function to generate a random date within the last 3 days
 function getRandomRecentDate() {
@@ -83,6 +84,7 @@ const mockTransactions = [
     buyer: "0x8603b59f2bac4cdb1bf9d844d9008cacf1659d72",
     amount: "40.26",
     status: "Claimable",
+    userPerspective: "merchant",
   },
   {
     id: "0xd0201874...f5a",
@@ -90,6 +92,7 @@ const mockTransactions = [
     buyer: "0x8d0649a99fcd566411fe3ebaa809511bf3bdef22",
     amount: "91.69",
     status: "Pending",
+    userPerspective: "merchant",
   },
   {
     id: "0xdcb56143...8f8",
@@ -97,6 +100,9 @@ const mockTransactions = [
     buyer: "0x1c6a7d30b72fef2a09d5f9bf55c23af8c7d07f91",
     amount: "68.88",
     status: "Disputed",
+    disputeEndDate: "2024-09-28 03:04",
+    disputeAmount: "30.00",
+    userPerspective: "merchant",
   },
   {
     id: "0xd0709338...b16",
@@ -104,6 +110,7 @@ const mockTransactions = [
     buyer: "0x0bc452858b6dc54b3c2592d7a1505cfe7559fbd9",
     amount: "90.66",
     status: "Pending",
+    userPerspective: "merchant",
   },
   {
     id: "0xb5ff0e92...91d",
@@ -111,6 +118,7 @@ const mockTransactions = [
     buyer: "0x782e0cfd4534f47b8864b66068cc8c81b3487f51",
     amount: "81.76",
     status: "Pending",
+    userPerspective: "merchant",
   },
   {
     id: "0x9b9b93d3...b11",
@@ -118,6 +126,7 @@ const mockTransactions = [
     buyer: "0xf29d01986fecc7610ca12462f2d4479af455eee0",
     amount: "33.63",
     status: "Claimable",
+    userPerspective: "merchant",
   },
   {
     id: "0xf34bc324...aab",
@@ -125,6 +134,7 @@ const mockTransactions = [
     buyer: "0x71ab8586b73623d1d5c98fedeaa78662695e7270",
     amount: "53.08",
     status: "Claimable",
+    userPerspective: "merchant",
   },
   {
     id: "0x63c48def...ce0",
@@ -132,6 +142,9 @@ const mockTransactions = [
     buyer: "0x064b713552eb6b974e533c62f9d7c9c982fbf14e",
     amount: "24.74",
     status: "Disputed",
+    disputeEndDate: "2024-09-27 03:04",
+    disputeAmount: "10.00",
+    userPerspective: "merchant",
   },
   {
     id: "0xd0d734da...6e6",
@@ -139,6 +152,7 @@ const mockTransactions = [
     buyer: "0x492bc465177de2ebf430d5d51be57a350c87e0d8",
     amount: "51.97",
     status: "Pending",
+    userPerspective: "merchant",
   },
   {
     id: "0x442cdff5...1a0",
@@ -146,6 +160,7 @@ const mockTransactions = [
     buyer: "0xd33e58855c44dc0663c1e5ebac3e74fbe859df95",
     amount: "72.64",
     status: "Claimable",
+    userPerspective: "merchant",
   },
 ];
 
@@ -187,6 +202,9 @@ function MerchantDashboardContent() {
   const [selectedTransaction, setSelectedTransaction] =
     useState<Transaction | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDisputeChatOpen, setIsDisputeChatOpen] = useState(false);
+  const [selectedDisputeTransaction, setSelectedDisputeTransaction] =
+    useState<Transaction | null>(null);
   const { address: _address } = useAccount();
 
   // Replace with your actual contract details
@@ -209,8 +227,8 @@ function MerchantDashboardContent() {
       // Show an error toast here if needed
     } finally {
       // Update the transaction status to "Completed"
-      setTransactions(prevTransactions =>
-        prevTransactions.map(transaction =>
+      setTransactions((prevTransactions) =>
+        prevTransactions.map((transaction) =>
           transaction.id === transactionId
             ? { ...transaction, status: "Completed" }
             : transaction
@@ -224,6 +242,11 @@ function MerchantDashboardContent() {
   const closeDialog = () => {
     setIsDialogOpen(false);
     setSelectedTransaction(null);
+  };
+
+  const openDisputeChat = (transaction: Transaction) => {
+    setSelectedDisputeTransaction(transaction);
+    setIsDisputeChatOpen(true);
   };
 
   useEffect(() => {
@@ -284,12 +307,22 @@ function MerchantDashboardContent() {
               <TableCell>
                 {transaction.status === "Claimable" && (
                   <Button
+                    className="w-full md:w-32"
                     onClick={() => {
                       setSelectedTransaction(transaction);
                       setIsDialogOpen(true);
                     }}
                   >
                     Claim Funds
+                  </Button>
+                )}
+                {transaction.status === "Disputed" && (
+                  <Button
+                    variant="secondary"
+                    className="w-full md:w-32"
+                    onClick={() => openDisputeChat(transaction)}
+                  >
+                    Open Chat
                   </Button>
                 )}
               </TableCell>
@@ -351,6 +384,18 @@ function MerchantDashboardContent() {
               {isLoading ? "Processing..." : "Confirm Claim"}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isDisputeChatOpen} onOpenChange={setIsDisputeChatOpen}>
+        <DialogContent className="max-w-4xl">
+          {selectedDisputeTransaction && (
+            <DisputeChatComponent
+              transactionId={selectedDisputeTransaction.id}
+              disputeEndDate={new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)} // Set dispute end date to 7 days from now
+              userPerspective="merchant"
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>
