@@ -30,7 +30,7 @@ const merchantData = {
   email: "contact@ethglobal.com",
   contractAddress: "0xF8d56ca172a99CD17B9aaE9de3b84C2a851A3202",
   createdAt: "2024-09-21",
-  chain: ["Ethereum", "Polygon", "Binance Smart Chain", "Base"],
+  chain: ["Sepolia", "Base", "Arbitrum", "Hedera"],
 };
 
 export function MerchantProfileComponent() {
@@ -40,34 +40,41 @@ export function MerchantProfileComponent() {
   const { toast } = useToast();
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text).then(() => {
-      setIsCopied(true);
-      toast({
-        title: "Copied!",
-        description: "Contract address copied to clipboard.",
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        setIsCopied(true);
+        toast({
+          title: "Copied!",
+          description: "Contract address copied to clipboard.",
+        });
+        setTimeout(() => setIsCopied(false), 2000);
+      })
+      .catch((err) => {
+        console.error("Failed to copy text: ", err);
+        toast({
+          title: "Error",
+          description: "Failed to copy contract address.",
+          variant: "destructive",
+        });
       });
-      setTimeout(() => setIsCopied(false), 2000);
-    }).catch((err) => {
-      console.error('Failed to copy text: ', err);
-      toast({
-        title: "Error",
-        description: "Failed to copy contract address.",
-        variant: "destructive",
-      });
-    });
   };
 
   // Function to determine the color of the chain badge
   const getChainColor = (chain: string) => {
     switch (chain.toLowerCase()) {
-      case "ethereum":
-        return "bg-blue-500";
+      case "sepolia":
+        return "bg-blue-600";
       case "polygon":
         return "bg-purple-500";
       case "binance smart chain":
         return "bg-yellow-500";
       case "base":
         return "bg-blue-700";
+      case "arbitrum":
+        return "bg-blue-500";
+      case "hedera":
+        return "bg-black";
       default:
         return "bg-gray-500";
     }
@@ -166,7 +173,9 @@ export function MerchantProfileComponent() {
                     id="email"
                     type="email"
                     value={editedData.email}
-                    onChange={(e) => setEditedData({ ...editedData, email: e.target.value })}
+                    onChange={(e) =>
+                      setEditedData({ ...editedData, email: e.target.value })
+                    }
                   />
                 </div>
               </div>
