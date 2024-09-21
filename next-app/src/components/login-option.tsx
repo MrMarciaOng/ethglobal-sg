@@ -30,7 +30,7 @@ export default function EnhancedLoginModal({ buttonText, className }: EnhancedLo
     
     // Simulate login process
     setTimeout(() => {
-      setIsOpen(false);
+      // setIsOpen(false);
       setLoggingIn(false);
       if (type === "demo") {
         router.push('/user');

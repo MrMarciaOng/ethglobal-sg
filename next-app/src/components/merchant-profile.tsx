@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { CopyIcon, EditIcon, CheckIcon } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+
 import {
   Dialog,
   DialogContent,
@@ -37,26 +37,17 @@ export function MerchantProfileComponent() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editedData, setEditedData] = useState({ ...merchantData });
   const [isCopied, setIsCopied] = useState(false);
-  const { toast } = useToast();
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard
       .writeText(text)
       .then(() => {
         setIsCopied(true);
-        toast({
-          title: "Copied!",
-          description: "Contract address copied to clipboard.",
-        });
+
         setTimeout(() => setIsCopied(false), 2000);
       })
       .catch((err) => {
         console.error("Failed to copy text: ", err);
-        toast({
-          title: "Error",
-          description: "Failed to copy contract address.",
-          variant: "destructive",
-        });
       });
   };
 

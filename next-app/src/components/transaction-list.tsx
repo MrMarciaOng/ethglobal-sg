@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState, useEffect } from "react";
@@ -29,7 +30,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { AlertCircle, CheckCircle2, Clock } from "lucide-react";
-import { toast } from "@/components/ui/use-toast";
 import { DisputeChatComponent } from "./dispute-chat";
 
 const mockTransactions = [
@@ -210,24 +210,24 @@ function MerchantDashboardContent() {
     setIsDisputeChatOpen(true);
   };
 
-  useEffect(() => {
-    if (isSuccess) {
-      toast({
-        title: "Funds Claimed Successfully",
-        description:
-          "The transaction has been processed and the funds have been transferred to your wallet.",
-      });
-    }
+  // useEffect(() => {
+  //   if (isSuccess) {
+  //     toast({
+  //       title: "Funds Claimed Successfully",
+  //       description:
+  //         "The transaction has been processed and the funds have been transferred to your wallet.",
+  //     });
+  //   }
 
-    if (isError) {
-      toast({
-        title: "Error Claiming Funds",
-        description:
-          "There was an error processing your claim. Please try again or contact support.",
-        variant: "destructive",
-      });
-    }
-  }, [isSuccess, isError]);
+  //   if (isError) {
+  //     toast({
+  //       title: "Error Claiming Funds",
+  //       description:
+  //         "There was an error processing your claim. Please try again or contact support.",
+  //       variant: "destructive",
+  //     });
+  //   }
+  // }, [isSuccess, isError]);
 
   return (
     <div className="container mx-auto p-4">
