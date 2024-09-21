@@ -64,11 +64,58 @@ contract PaymentGateway is AccessControl {
         s_transactionCount++;
     }
 
-    function disputeTransaction() external {}
+    function disputeTransaction(uint256 transactionId) external {
+        Transaction storage transaction = s_transactions[transactionId];
+        require(msg.sender == transaction.buyer, "Only buyer can dispute");
+        require(block.timestamp <= transaction.timestamp + DISPUTE_PERIOD, "Dispute period ended");
+        require(!transaction.isDisputed, "Already disputed");
 
-    function resolveDispute() external {}
+        require(s_usdcToken.transferFrom(msg.sender, address(this), DISPUTE_FEE), "Dispute fee transfer failed");
 
-    function releasePayment() external {}
+        transaction.isDisputed = true;
 
-    function withdrawFees() external {}
+        emit TransactionDisputed(transactionId);
+    }
+
+    function resolveDispute(uint256 transactionId, bool buyerWon) external onlyRole(MODERATOR_ROLE) {
+        Transaction storage transaction = s_transactions[transactionId];
+        require(transaction.isDisputed, "Transaction not disputed");
+        require(!transaction.isResolved, "Dispute already resolved");
+
+        transaction.isResolved = true;
+
+        if (buyerWon) {
+            require(s_usdcToken.transfer(transaction.buyer, transaction.amount), "Refund to buyer failed");
+        } else {
+            require(s_usdcToken.transfer(i_merchant, transaction.amount), "Transfer to merchant failed");
+        }
+
+        // The DISPUTE_FEE is always kept by the contract
+
+        emit DisputeResolved(transactionId, buyerWon);
+    }
+
+    function releasePayment(uint256 transactionId) external onlyRole(MERCHANT_ROLE) {
+        Transaction storage transaction = s_transactions[transactionId];
+        require(!transaction.isDisputed, "Transaction is disputed");
+        require(block.timestamp > transaction.timestamp + DISPUTE_PERIOD, "Dispute period not ended");
+
+        require(s_usdcToken.transfer(i_merchant, transaction.amount), "Transfer failed");
+
+        emit PaymentReleased(transactionId, transaction.amount);
+    }
+
+    function withdrawFees(uint256 amount) external onlyRole(ADMIN_ROLE) {
+        require(amount <= s_usdcToken.balanceOf(address(this)), "Insufficient balance");
+        require(s_usdcToken.transfer(msg.sender, amount), "Transfer failed");
+        emit FeesWithdrawn(msg.sender, amount);
+    }
+
+    function getMerchantTransactions() external view returns (uint256[] memory) {
+        uint256[] memory merchantTxIds = new uint256[](s_transactionCount);
+        for (uint256 i = 0; i < s_transactionCount; i++) {
+            merchantTxIds[i] = i;
+        }
+        return merchantTxIds;
+    }
 }
